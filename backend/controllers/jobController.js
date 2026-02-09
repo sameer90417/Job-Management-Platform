@@ -1,4 +1,5 @@
 const Job = require("../models/Job");
+const { getJobsService } = require("../services/jobService");
 
 exports.createJob = async (req, res) => {
   const job = await Job.create({
@@ -11,33 +12,14 @@ exports.createJob = async (req, res) => {
 exports.getJobs = async (req, res) => {
   const { keyword, location, page = 1, limit = 5 } = req.query;
 
-  const query = {};
-
-  if (keyword) {
-    query.$or = [
-      { title: { $regex: keyword, $options: "i" } },
-      { company: { $regex: keyword, $options: "i" } },
-    ];
-  }
-
-  if (location) {
-    query.location = { $regex: location, $options: "i" };
-  }
-
-  const jobs = await Job.find(query)
-    .lean()
-    .skip((page - 1) * limit)
-    .limit(Number(limit))
-    .sort({ createdAt: -1 })
-    .populate("createdBy", "name email");
-
-  const total = await Job.countDocuments(query);
-
-  res.json({
-    jobs,
-    total,
-    pages: Math.ceil(total / limit),
+  const data = await getJobsService({
+    keyword,
+    location,
+    page: Number(page),
+    limit: Number(limit),
   });
+
+  res.json(data);
 };
 
 exports.getJobById = async (req, res) => {
