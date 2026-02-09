@@ -25,6 +25,7 @@ exports.getJobs = async (req, res) => {
   }
 
   const jobs = await Job.find(query)
+    .lean()
     .skip((page - 1) * limit)
     .limit(Number(limit))
     .sort({ createdAt: -1 })
