@@ -32,4 +32,6 @@ const jobSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+jobSchema.index({ title: "text", company: "text", location: 1 });
+
 module.exports = mongoose.model("Job", jobSchema);
